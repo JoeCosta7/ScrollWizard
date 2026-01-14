@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Scroll Saver",
   "description": "Does Something",
-  "permissions": ["storage","tabs"],
+  "permissions": ["storage", "tabs", "scripting", "activeTab"],
   "icons": {
     "16": "images/icon-16.png",
     "32": "images/icon-32.png",
