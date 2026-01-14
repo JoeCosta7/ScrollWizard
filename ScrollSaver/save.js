@@ -1,16 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
     const button = document.getElementById("savePage");
-    button.addEventListener("click", function () {
-    chrome.storage.local.set({'mySavedUrl': getCurrentTabUrl()}, function() {
+    button.addEventListener("click", async function () {
+    const url = await getCurrentTabUrl();
+    chrome.storage.local.set({'mySavedUrl': url}, function() {
     console.log('URL saved!');
-    document.getElementById("link").innerHTML = "";
+     chrome.storage.local.get(['mySavedUrl'], function(result) {
+        document.getElementById("link").innerHTML = result.mySavedUrl;
+})
 })
 })
 });
 
 async function getCurrentTabUrl() {
-    let queryOptions = {active: true, currentWindow: true};
-    let [tab] = await chrome.tabs.query(queryOptions);
+    const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
     console.log("Current URL: ", tab.url);
-    return tab.url;
+    return tab.url
 }
