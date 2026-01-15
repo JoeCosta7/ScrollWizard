@@ -46,6 +46,20 @@ function sendScrollPosition(){
         if (request.message == "scrollXY") {
             sendResponse({ scrollPos: [window.scrollX,window.scrollY] });
         }
+    });
+    try{
+        document.getElementById('newAnchor').style.top = window.scrollY + "px";
+    } catch {
+        const newElement = document.createElement("div");
+        newElement.setAttribute("id", "newAnchor");
+        newElement.textContent = "Anchor is here...";
+        newElement.style.position = "absolute";
+        newElement.style.left = "0px";
+        newElement.style.top = window.scrollY + "px";
+        newElement.style.backgroundColor = "red";
+        newElement.style.padding = "10px";
+        newElement.style.zIndex = "10000";
+
+        document.body.appendChild(newElement);
     }
-);
 }

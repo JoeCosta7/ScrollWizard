@@ -6,14 +6,7 @@ document.getElementById('loadPage').addEventListener('click', function() {
             if(url!=result.mySavedUrl){
               chrome.tabs.create({ url: result.mySavedUrl });
             }
-
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-              chrome.scripting.executeScript({
-                target: { tabId: tabs[0].id },
-                func: loadScrollPos
-              })
-              .then(() => chrome.tabs.sendMessage(tabs[0].id,{scrollPos:[result.scrollPos[0],result.scrollPos[1]]}));
-            })
+            executeScroll(result.scrollPos[0],result.scrollPos[1]); 
             
         } else {
             console.log("no url");
@@ -28,4 +21,15 @@ function loadScrollPos() {
       }
   });
 }
+
+function executeScroll(x, y){
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.scripting.executeScript({
+      target: { tabId: tabs[0].id },
+      func: loadScrollPos
+    })
+    .then(() => chrome.tabs.sendMessage(tabs[0].id,{scrollPos:[x,y]}));
+  })
+}
+
 
