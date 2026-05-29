@@ -47,7 +47,10 @@ async function displayUrls(entries) {
 
         const posText = document.createElement("span");
         posText.className = "text-xs text-gray-500 flex-1";
-        posText.textContent = `Position ${index + 1}: (X: ${pos[0]}, Y: ${pos[1]})`;
+        posText.textContent = pos[2] || `Position ${index + 1}: (X: ${pos[0]}, Y: ${pos[1]})`;
+        posText.addEventListener("dblclick", function () {
+            handleRenameDoubleClick(posText, entry.url, pos, index, displayUrls);
+        });
 
         const goButton = document.createElement("button");
         goButton.textContent = "Go";
