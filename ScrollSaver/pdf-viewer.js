@@ -36,7 +36,11 @@ function renderBookmarkMarkers() {
             marker.id = `anchor-${pos[0]}-${pos[1]}`;
             marker.classList.add('saved-anchor-marker');
             marker.textContent = pos[2];
-            marker.style.cssText = `position:absolute;left:0;top:${pos[1]}px;background:red;color:white;padding:10px;z-index:10000;`;
+            marker.className = "saved-anchor-marker bg-red-500 text-white text-base font-semibold px-4 py-2 rounded-full shadow-md tracking-wide select-none";
+            marker.style.position = "absolute";
+            marker.style.left = "0px";
+            marker.style.top = pos[1] + "px";
+            marker.style.zIndex = "10000";
             container.appendChild(marker);
         });
     });
