@@ -87,12 +87,15 @@ async function requestScrollPosition() { //entries are saved here
         const saves = result.saves || [];
         const url = await getCurrentTabUrl();
         const existingEntry = saves.find(entry => entry.url === url);
+        const data = response.scrollPos;
         if (existingEntry) { //if urls already saved to this page, add to list
-            existingEntry.positions.push(response.scrollPos);
+            data.push(`Position ${existingEntry.positions.length + 1}: (X: ${response.scrollPos[0]}, Y: ${response.scrollPos[1]})`)
+            existingEntry.positions.push(data);
         } else {
+            data.push(`Position 1: (X: ${response.scrollPos[0]}, Y: ${response.scrollPos[1]})`)
             saves.push({ //else, initialize the list
                 url: url,
-                positions: [response.scrollPos]
+                positions: [data]
             });
         }
         chrome.storage.local.set({'saves':saves}, function() {
@@ -115,7 +118,9 @@ function sendScrollPosition(){
     } catch {
         const newElement = document.createElement("div");
         newElement.setAttribute("id", `anchor-${window.scrollX}-${window.scrollY}`);
-        newElement.textContent = `Anchor ${window.scrollX}, ${window.scrollY}`;
+        const index = document.querySelectorAll(".saved-anchor-marker").length;
+        newElement.textContent = `Position ${index + 1}: (X: ${window.scrollX}, Y: ${window.scrollY})`;
+        newElement.classList.add("saved-anchor-marker");
         newElement.className = "bg-red-500 text-white text-base font-semibold px-4 py-2 rounded-full shadow-md tracking-wide select-none";
         newElement.style.cssText = `position:absolute;left:0;top:${window.scrollY}px;z-index:10000`;
 

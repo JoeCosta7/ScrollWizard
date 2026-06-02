@@ -8,7 +8,7 @@ chrome.storage.local.get(['saves'], async function(result) {
             const newElement = document.createElement("div");
             newElement.classList.add("saved-anchor-marker");
             newElement.setAttribute("id", `anchor-${pos[0]}-${pos[1]}`);
-            newElement.textContent = `Anchor ${pos[0]}, ${pos[1]}`;
+            newElement.textContent = pos[2];
             newElement.style.position = "absolute";
             newElement.style.left = "0px";
             newElement.style.top = pos[1] + "px";
