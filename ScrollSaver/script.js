@@ -2,13 +2,19 @@ async function handleButtonClick(savedUrl, savedPosition) {
   const url = await getCurrentTabUrl();
 
   if(url!=savedUrl){
-    chrome.tabs.create({ url: savedUrl }, newTab => {
-      chrome.scripting.executeScript({
-        target: { tabId: newTab.id },
-        func: loadScrollPos,
-        args: [savedPosition[0],savedPosition[1]]
-      })
-    })
+    const isPdf = /\.pdf($|\?)/i.test(savedUrl);
+    const targetUrl = isPdf
+      ? chrome.runtime.getURL('pdf-viewer.html') + '?url=' + encodeURIComponent(savedUrl)
+      : savedUrl;
+    chrome.tabs.create({ url: targetUrl }, newTab => {
+      if (!isPdf) {
+        chrome.scripting.executeScript({
+          target: { tabId: newTab.id },
+          func: loadScrollPos,
+          args: [savedPosition[0],savedPosition[1]]
+        });
+      }
+    });
   }
   else {
     executeScroll(savedPosition[0],savedPosition[1]);
@@ -102,10 +108,14 @@ function loadScrollPos(x, y) {
 function executeScroll(x, y){
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (!tabs[0]) return;
-    chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
-      func: loadScrollPos,
-      args: [x,y]
-    })
-  })
+    if (tabs[0].url.includes('pdf-viewer.html')) {
+      chrome.tabs.sendMessage(tabs[0].id, { message: 'scrollTo', x, y });
+    } else {
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        func: loadScrollPos,
+        args: [x, y]
+      });
+    }
+  });
 }

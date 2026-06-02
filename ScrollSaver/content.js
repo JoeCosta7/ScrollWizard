@@ -1,4 +1,6 @@
 
+if (/\.pdf($|\?)/i.test(location.href)) return;
+
 chrome.storage.local.get(['saves'], async function(result) {
     const existingUrls = result.saves || [];
     const entry = existingUrls.find(ent => ent.url === location.href)

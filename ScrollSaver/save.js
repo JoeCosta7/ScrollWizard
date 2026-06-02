@@ -1,4 +1,14 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab.url && /\.pdf($|\?)/i.test(tab.url) && !tab.url.startsWith(chrome.runtime.getURL(''))) {
+        document.getElementById('openInViewer').style.display = 'block';
+    }
+    document.getElementById('openInViewer').addEventListener('click', async () => {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const viewerUrl = chrome.runtime.getURL('pdf-viewer.html') + '?url=' + encodeURIComponent(tab.url);
+        chrome.tabs.update(tab.id, { url: viewerUrl });
+        window.close();
+    });
     chrome.storage.local.get(['saves'], function(result) {
         if (result.saves && result.saves.length > 0) {
             displayUrls(result.saves)
@@ -8,14 +18,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     const button = document.getElementById("savePage");
     button.addEventListener("click", async function () {
-        
-        const url = await getCurrentTabUrl();
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            chrome.scripting.insertCSS({ target: { tabId: tabs[0].id }, files: ["output.css"] })
-                .then(() => chrome.scripting.executeScript({ target: { tabId: tabs[0].id }, func: sendScrollPosition }))
+        if (tab.url.includes('pdf-viewer.html')) {
+            requestScrollPosition();
+        } else {
+            chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: ["output.css"] })
+                .then(() => chrome.scripting.executeScript({ target: { tabId: tab.id }, func: sendScrollPosition }))
                 .then(requestScrollPosition);
-        })
+        }
     });
     document.getElementById("bookmarks").addEventListener("click", () => {
         chrome.tabs.create({ url: chrome.runtime.getURL("bookmarks.html") });
@@ -75,6 +86,10 @@ async function displayUrls(entries) {
 
 async function getCurrentTabUrl() {
     const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
+    if(tab.url.includes("pdf-viewer.html")){
+        const urlParams = new URLSearchParams(new URL(tab.url).search);
+        return urlParams.get("url") || tab.url;
+    }
     console.log("Current URL: ", tab.url);
     return tab.url;
 }

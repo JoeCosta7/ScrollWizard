@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>PDF Viewer</title>
+    <link rel="stylesheet" href="output.css">
+  </head>
+  <body class="bg-gray-700 min-h-screen">
+
+    <div id="toolbar" class="sticky top-0 z-50 bg-gray-800 text-white px-4 py-2 flex items-center gap-4 text-sm shadow-md">
+      <span id="pdf-title" class="font-semibold truncate flex-1">Loading PDF…</span>
+      <span id="page-indicator" class="text-gray-300 whitespace-nowrap"></span>
+    </div>
+
+    <div id="pdf-container" class="relative flex flex-col items-center py-4 gap-2"></div>
+
+    <script src="pdf-viewer.js" type="module"></script>
+  </body>
+</html>
