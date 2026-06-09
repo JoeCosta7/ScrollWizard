@@ -22,10 +22,46 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         if (tab.url.includes('pdf-viewer.html')) {
             requestScrollPosition();
-        } else {
-            chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: ["output.css"] })
-                .then(() => chrome.scripting.executeScript({ target: { tabId: tab.id }, func: sendScrollPosition }))
-                .then(requestScrollPosition);
+            return;
+        }
+
+        try {
+            const results = await chrome.scripting.executeScript({
+                target: { tabId: tab.id },
+                func: () => [window.scrollX, window.scrollY]
+            });
+            const [x, y] = results[0].result;
+
+            const storageResult = await chrome.storage.local.get(['saves']);
+            const saves = storageResult.saves || [];
+            const existingEntry = saves.find(entry => entry.url === tab.url);
+            const label = existingEntry
+                ? `Position ${existingEntry.positions.length + 1}: (X: ${x}, Y: ${y})`
+                : `Position 1: (X: ${x}, Y: ${y})`;
+
+            if (existingEntry) {
+                existingEntry.positions.push([x, y, label]);
+            } else {
+                saves.push({ url: tab.url, positions: [[x, y, label]] });
+            }
+            await chrome.storage.local.set({ saves });
+
+            await chrome.scripting.executeScript({
+                target: { tabId: tab.id },
+                func: (px, py, plabel) => {
+                    const el = document.createElement('div');
+                    el.setAttribute('id', `anchor-${px}-${py}`);
+                    el.className = 'saved-anchor-marker';
+                    el.textContent = plabel;
+                    el.style.cssText = `position:absolute; left:0; top:${py}px; z-index:10000; background:#ef4444; color:#fff; font-weight:600; padding:0.5rem 1rem; border-radius:9999px; box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06); letter-spacing:.025em; user-select:none; font-family:sans-serif;`;
+                    document.body.appendChild(el);
+                },
+                args: [x, y, label]
+            });
+
+            displayUrls(saves);
+        } catch (e) {
+            console.error('Failed to create bookmark:', e);
         }
     });
     document.getElementById("bookmarks").addEventListener("click", () => {
