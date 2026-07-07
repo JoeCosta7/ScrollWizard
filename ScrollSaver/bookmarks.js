@@ -1,7 +1,37 @@
+let allEntries = [];
+let currentQuery = "";
+
+function positionLabel(pos, index) {
+    return pos[2] || `Position ${index + 1}: (X: ${pos[0]}, Y: ${pos[1]})`;
+}
+
+function getFiltered() {
+    const q = currentQuery.trim().toLowerCase();
+    if (!q) return allEntries;
+    return allEntries.reduce((acc, entry) => {
+        if (entry.url.toLowerCase().includes(q)) {
+            acc.push({url: entry.url, positions: entry.positions});
+        } else {
+            const positions = entry.positions.filter((pos, index) => positionLabel(pos, index).toLowerCase().includes(q));
+            if (positions.length > 0) {
+                acc.push({url: entry.url, positions: positions});
+            }
+        }
+        return acc;
+    }, []);
+}
+
+function render() {
+    DisplayUrlsFull(getFiltered());
+}
+
+
+
 function DisplayUrlsFull(entries) {
     document.getElementById("list").innerHTML = "";
     if(entries.length === 0){
-        document.getElementById("list").innerHTML = '<h1 class="text-gray-400 dark:text-gray-500 italic text-center text-base">No bookmarks saved</h1>';
+        const message = currentQuery ? "No bookmarks match your search" : "No bookmarks saved";
+        document.getElementById("list").innerHTML = `<h1 class="text-gray-400 dark:text-gray-500 italic text-center text-base">${message}</h1>`;
         return;
     }
     entries.forEach((entry) => {
@@ -22,7 +52,7 @@ function DisplayUrlsFull(entries) {
             posText.className = "text-xs text-gray-500 dark:text-gray-400 flex-1";
             posText.textContent = pos[2] || `Position ${index + 1}: (X: ${pos[0]}, Y: ${pos[1]})`;
             posText.addEventListener("dblclick", function () {
-                handleRenameDoubleClick(posText, entry.url, pos, index, DisplayUrlsFull);
+                handleRenameDoubleClick(posText, entry.url, pos, index, (entries) => { allEntries = entries; render(); });
             });
 
             const goButton = document.createElement("button");
@@ -66,12 +96,20 @@ function handleDeleteClickFromFull(savedUrl, savedPosition) {
 
         chrome.storage.local.set({ 'saves' : entries}, function() {
             console.log('URL and scroll position deleted');
-            DisplayUrlsFull(entries);
+            allEntries = entries;
+            render();
         });
     });
 }
 
-chrome.storage.local.get(['saves'], async (result) => {
-    const entries = result.saves || [];
-    DisplayUrlsFull(entries);
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("search").addEventListener("input", (e) => {
+        currentQuery = e.target.value;
+        render();
+    });
+
+    chrome.storage.local.get(['saves'], (result) => {
+        allEntries = result.saves || [];
+        render();
+    });
 });
