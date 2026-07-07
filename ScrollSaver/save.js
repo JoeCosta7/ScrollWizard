@@ -14,14 +14,14 @@ async function displayUrls(entries) {
     const url = await getCurrentTabUrl();
     const entry = entries.find(e => e.url === url);
     if(!entry){
-        linkElement.innerHTML = '<li class="text-gray-400 text-xs italic">No bookmarks saved for this page</li>';
+        linkElement.innerHTML = '<li class="text-gray-400 dark:text-gray-500 text-xs italic">No bookmarks saved for this page</li>';
         return;
     }
     const urlContainer = document.createElement("li");
-    urlContainer.className = "bg-gray-50 border border-gray-200 rounded-lg p-3";
+    urlContainer.className = "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3";
 
     const urlTitle = document.createElement("p");
-    urlTitle.className = "font-semibold text-xs text-gray-700 truncate mb-2";
+    urlTitle.className = "font-semibold text-xs text-gray-700 dark:text-gray-200 truncate mb-2";
     urlTitle.textContent = entry.url;
     urlContainer.appendChild(urlTitle);
 
@@ -30,7 +30,7 @@ async function displayUrls(entries) {
         itemDiv.className = "flex items-center gap-2 mt-1 ml-1";
 
         const posText = document.createElement("span");
-        posText.className = "text-xs text-gray-500 flex-1";
+        posText.className = "text-xs text-gray-500 dark:text-gray-400 flex-1";
         posText.textContent = pos[2] || `Position ${index + 1}: (X: ${pos[0]}, Y: ${pos[1]})`;
         posText.addEventListener("dblclick", function () {
             handleRenameDoubleClick(posText, entry.url, pos, index, displayUrls);
@@ -197,23 +197,20 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     chrome.storage.local.get(['settings'], (result) => {
         const anchorToggle = document.getElementById('anchorToggle');
-        if (!anchorToggle) return;
-        anchorToggle.checked = result.settings?.anchorsVisible !== false;
+        if (anchorToggle) {
+            anchorToggle.checked = result.settings?.anchorsVisible !== false;
+            anchorToggle.addEventListener('change', (e) => {
+                updateSetting('anchorsVisible', e.target.checked);
+            });
+        }
 
-        anchorToggle.addEventListener('change', async (e) => {
-           const visible = e.target.checked;
-           chrome.storage.local.set({settings: {anchorsVisible: visible}});
-        //    const [tab] = await chrome.tabs.query({active : true});
-        //    if (tab.url.includes('pdf-viewer.html')) return;
-        //    chrome.scripting.executeScript({
-        //         target: { tabId: tab.id },
-        //         func: (v) => {
-        //             document.querySelectorAll('.saved-anchor-marker').forEach(el => {
-        //                 el.style.visibility = v ? 'visible' : 'hidden';
-        //             });
-        //         },
-        //         args: [visible]
-        //    });
-        });
+        const darkToggle = document.getElementById('darkToggle');
+        if (darkToggle) {
+            darkToggle.checked = result.settings?.darkMode === true;
+            darkToggle.addEventListener('change', (e) => {
+                applyTheme(e.target.checked);
+                updateSetting('darkMode', e.target.checked);
+            });
+        }
     });
 });

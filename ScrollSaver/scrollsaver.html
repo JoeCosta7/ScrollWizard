@@ -4,7 +4,7 @@
         <script src="script.js"></script>
         <script src="save.js"></script>
     </head>
-    <body class="w-72 p-4 bg-white">
+    <body class="w-72 p-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <div id="main-view">
             <button id="bookmarks" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg mb-4">View All Bookmarks</button>
             <button id="savePage" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg mb-4">Create Bookmark</button>
@@ -21,9 +21,13 @@
         </div>
         <div id="settings-view" style="display:none" class="p-4">
             <button id="backBtn" class="text-blue-600 hover:text-blue-800 text-sm mb-4">&#8592; Back</button>
-            <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 cursor-pointer mb-2">
                 <input type="checkbox" id="anchorToggle">
                 Show anchors when menu is closed
+            </label>
+            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 cursor-pointer">
+                <input type="checkbox" id="darkToggle">
+                Dark mode
             </label>
         </div>
     </body>

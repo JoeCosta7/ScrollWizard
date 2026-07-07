@@ -1,3 +1,17 @@
+function applyTheme(isDark) {
+  document.documentElement.classList.toggle('dark', isDark);
+}
+
+function updateSetting(key, value) {
+  chrome.storage.local.get(['settings'], (result) => {
+    const settings = { ...(result.settings || {}), [key]: value };
+    chrome.storage.local.set({ settings });
+  });
+}
+chrome.storage.local.get(['settings'], (result) => {
+  applyTheme(result.settings?.darkMode === true);
+});
+
 async function handleButtonClick(savedUrl, savedPosition) {
   const url = await getCurrentTabUrl();
 
@@ -60,7 +74,7 @@ function handleRenameDoubleClick(posText, savedUrl, savedPosition, index, onComm
     const input = Object.assign(document.createElement("input"), {
         type: "text",
         value: savedPosition[2] || defaultName,
-        className: "text-xs text-gray-500 flex-1 outline-none border border-blue-400 rounded px-1 min-w-0"
+        className: "text-xs text-gray-500 dark:text-gray-200 dark:bg-gray-800 flex-1 outline-none border border-blue-400 rounded px-1 min-w-0"
     });
 
     let cancelled = false;

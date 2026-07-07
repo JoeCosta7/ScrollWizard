@@ -1,16 +1,16 @@
 function DisplayUrlsFull(entries) {
     document.getElementById("list").innerHTML = "";
     if(entries.length === 0){
-        document.getElementById("list").innerHTML = '<h1 class="text-gray-400 italic text-center text-base">No bookmarks saved</h1>';
+        document.getElementById("list").innerHTML = '<h1 class="text-gray-400 dark:text-gray-500 italic text-center text-base">No bookmarks saved</h1>';
         return;
     }
     entries.forEach((entry) => {
         const urlContainer = document.createElement("div");
-        
-        urlContainer.className = "bg-gray-50 border border-gray-200 rounded-lg p-3 mt-3";
+
+        urlContainer.className = "bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mt-3";
 
         const urlTitle = document.createElement("p");
-        urlTitle.className = "font-semibold text-xs text-gray-700 truncate mb-2";
+        urlTitle.className = "font-semibold text-xs text-gray-700 dark:text-gray-200 truncate mb-2";
         urlTitle.textContent = entry.url;
         urlContainer.appendChild(urlTitle);
 
@@ -19,7 +19,7 @@ function DisplayUrlsFull(entries) {
             itemDiv.className = "flex items-center gap-2 mt-1 ml-1";
 
             const posText = document.createElement("span");
-            posText.className = "text-xs text-gray-500 flex-1";
+            posText.className = "text-xs text-gray-500 dark:text-gray-400 flex-1";
             posText.textContent = pos[2] || `Position ${index + 1}: (X: ${pos[0]}, Y: ${pos[1]})`;
             posText.addEventListener("dblclick", function () {
                 handleRenameDoubleClick(posText, entry.url, pos, index, DisplayUrlsFull);
