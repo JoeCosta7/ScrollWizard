@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Scroll Saver",
-  "description": "Does Something",
+  "description": "Save and jump back to scroll positions on any web page or PDF.",
   "permissions": ["storage", "tabs", "scripting", "activeTab"],
   "host_permissions": ["*://*/*", "file://*/*"],
   "web_accessible_resources": [
