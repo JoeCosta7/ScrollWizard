@@ -10,11 +10,20 @@ chrome.storage.local.get(['saves', 'settings'], async function(result) {
             newElement.setAttribute("id", `anchor-${pos[0]}-${pos[1]}`);
             newElement.textContent = pos[2];
             newElement.style.cssText = `
-                position: absolute; left: 0; top: ${pos[1]}px; z-index: 10000;
-                background: #ef4444; color: #fff; font-weight: 600;
-                padding: 0.5rem 1rem; border-radius: 9999px;
+                position: absolute; 
+                left: 0; 
+                top: ${pos[1]}px; 
+                z-index: 10000;
+                background: #ef4444; 
+                color: #fff; 
+                font-weight: 600;
+                padding: 0.5rem 1.5rem 0.5rem 1rem;
+                border-radius: 4px 0 0 4px;
                 box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06);
-                letter-spacing: .025em; user-select: none; font-family: sans-serif;
+                letter-spacing: .025em; 
+                user-select: none; 
+                font-family: sans-serif;
+                clip-path: polygon(0% 0%, 100% 0%, 92% 50%, 100% 100%, 0% 100%);
             `;
             newElement.style.visibility = anchorsVisible ? 'visible' : 'hidden';
 

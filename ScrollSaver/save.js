@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                         el.setAttribute('id', `anchor-${px}-${py}`);
                         el.className = 'saved-anchor-marker';
                         el.textContent = plabel;
-                        el.style.cssText = `position:absolute; left:0; top:${py}px; z-index:10000; background:#ef4444; color:#fff; font-weight:600; padding:0.5rem 1rem; border-radius:9999px; box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06); letter-spacing:.025em; user-select:none; font-family:sans-serif;`;
+                        el.style.cssText = `position:absolute; left:0; top:${py}px; z-index:10000; background:#ef4444; color:#fff; font-weight:600; padding: 0.5rem 1.5rem 0.5rem 1rem; border-radius: 4px 0 0 4px; box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06); letter-spacing:.025em; user-select:none; font-family:sans-serif; user-select: none; clip-path: polygon(0% 0%, 100% 0%, 92% 50%, 100% 100%, 0% 100%);`;
                         document.body.appendChild(el);
                     },
                     args: [x, y, label]
