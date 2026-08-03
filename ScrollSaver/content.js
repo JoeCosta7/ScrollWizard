@@ -11,13 +11,13 @@ chrome.storage.local.get(['saves', 'settings'], async function(result) {
             newElement.textContent = pos[2];
             newElement.style.cssText = `
                 position: absolute; 
-                left: 0; 
+                left: ${pos[0]}px; 
                 top: ${pos[1]}px; 
                 z-index: 10000;
                 background: #ef4444; 
                 color: #fff; 
                 font-weight: 600;
-                padding: 0.5rem 1.5rem 0.5rem 1rem;
+                padding: 0.5rem 2.2rem 0.5rem 1rem;
                 border-radius: 4px 0 0 4px;
                 box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06);
                 letter-spacing: .025em; 
