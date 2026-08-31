@@ -65,25 +65,46 @@ async function loadPdf() {
         const pdf = await loadingTask.promise;
         const container = document.getElementById('pdf-container');
         const scale = 1.5;
+
+        const renderPromises = [];
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            const page = await pdf.getPage(pageNum);
-            const viewport = page.getViewport({ scale });
             const canvas = document.createElement('canvas');
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
             canvas.dataset.pageNum = pageNum;
             canvas.classList.add('pdf-page');
             container.appendChild(canvas);
 
-            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+            const renderTask = (async () => {
+                const page = await pdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale });
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+            })();
+
+            renderPromises.push(renderTask);
+
+            if (pageNum === 1) {
+                renderTask.then(() => {
+                    updatePage();
+                    renderBookmarkMarkers();
+                    if (scrollTarget) {
+                        window.scrollTo({ left: scrollTarget.x, top: scrollTarget.y, behavior: 'smooth' });
+                        scrollTarget = null;
+                    }
+                });
+            }
         }
+
+        await Promise.all(renderPromises);
         updatePage();
         renderBookmarkMarkers();
+        
         if (scrollTarget) {
             window.scrollTo({ left: scrollTarget.x, top: scrollTarget.y, behavior: 'smooth' });
         }
+
     } catch (err) {
-        console.error('ScrollSaver PDF load failed:', err);
+        console.error('ScrollWizard PDF load failed:', err);
         const container = document.getElementById('pdf-container');
         if (container) {
             const box = document.createElement('div');
