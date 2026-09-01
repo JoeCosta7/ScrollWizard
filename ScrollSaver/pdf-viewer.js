@@ -41,7 +41,6 @@ function renderBookmarkMarkers() {
             marker.id = `anchor-${pos[0]}-${pos[1]}`;
             marker.classList.add('saved-anchor-marker');
             marker.textContent = pos[2];
-            marker.className = "saved-anchor-marker";
             marker.style.cssText = `position:absolute; left:${pos[0]}px; top:${pos[1]}px; z-index:10000; background:#ef4444; color:#fff; font-weight:600; padding: 0.5rem 2.2rem 0.5rem 1rem; border-radius: 4px 0 0 4px; box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06); letter-spacing:.025em; user-select:none; font-family:sans-serif; clip-path: polygon(0% 0%, 100% 0%, 92% 50%, 100% 100%, 0% 100%);`;
             marker.style.visibility = anchorsVisible ? 'visible' : 'hidden';
             container.appendChild(marker);
@@ -64,14 +63,10 @@ async function loadPdf() {
         const container = document.getElementById('pdf-container');
         const scale = 1.5;
 
-        const pagePromises = [];
-        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            pagePromises.push(pdf.getPage(pageNum));
-        }
-        const pages = await Promise.all(pagePromises);
+        const pageNums = Array.from({ length: pdf.numPages }, (_, i) => i + 1);
+        const pages = await Promise.all(pageNums.map(n => pdf.getPage(n)));
 
-        // Build all page wrappers up front, in order, so the DOM order is
-        // correct no matter which page finishes rendering first.
+
         const pageInfos = pages.map((page, index) => {
             const pageNum = index + 1;
             const viewport = page.getViewport({ scale });
@@ -96,33 +91,48 @@ async function loadPdf() {
 
             container.appendChild(pageWrapper);
 
-            return { page, canvas, textLayerDiv, viewport };
+            return { page, wrapper: pageWrapper, canvas, textLayerDiv, viewport, rendered: false, rendering: false };
         });
 
-        const renderPromises = pageInfos.map(async ({ page, canvas, textLayerDiv, viewport }, index) => {
-            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+        async function renderPageInfo(info) {
+            if (info.rendered || info.rendering) return;
+            info.rendering = true;
+            await info.page.render({ canvasContext: info.canvas.getContext('2d'), viewport: info.viewport }).promise;
             await new pdfjsLib.TextLayer({
-                textContentSource: page.streamTextContent(),
-                container: textLayerDiv,
-                viewport
+                textContentSource: info.page.streamTextContent(),
+                container: info.textLayerDiv,
+                viewport: info.viewport
             }).render();
+            info.rendered = true;
+        }
 
-            if (index === 0) {
-                updatePage();
-                renderBookmarkMarkers();
-                if (scrollTarget) {
-                    window.scrollTo({ left: scrollTarget.x, top: scrollTarget.y, behavior: 'smooth' });
-                    scrollTarget = null;
-                }
-            }
-        });
 
-        await Promise.all(renderPromises);
+        let priorityIndex = 0;
+        if (scrollTarget) {
+            const found = pageInfos.findIndex(info =>
+                scrollTarget.y >= info.wrapper.offsetTop &&
+                scrollTarget.y < info.wrapper.offsetTop + info.wrapper.offsetHeight
+            );
+            if (found !== -1) priorityIndex = found;
+        }
+        await renderPageInfo(pageInfos[priorityIndex]);
+
         updatePage();
         renderBookmarkMarkers();
         if (scrollTarget) {
             window.scrollTo({ left: scrollTarget.x, top: scrollTarget.y, behavior: 'smooth' });
         }
+
+        const observer = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                observer.unobserve(entry.target);
+                const pageNum = parseInt(entry.target.dataset.pageNum, 10);
+                renderPageInfo(pageInfos[pageNum - 1]);
+            }
+        }, { rootMargin: '1000px 0px' });
+
+        pageInfos.forEach(info => observer.observe(info.wrapper));
     } catch (err) {
         console.error('ScrollSaver PDF load failed:', err);
         const container = document.getElementById('pdf-container');
