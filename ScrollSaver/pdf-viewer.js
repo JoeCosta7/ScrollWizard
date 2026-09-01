@@ -41,18 +41,17 @@ function renderBookmarkMarkers() {
             marker.id = `anchor-${pos[0]}-${pos[1]}`;
             marker.classList.add('saved-anchor-marker');
             marker.textContent = pos[2];
-            marker.className = "saved-anchor-marker bg-red-500 text-white text-base font-semibold px-4 py-2 rounded-full shadow-md tracking-wide select-none";
-            marker.style.position = "absolute";
-            marker.style.left = "0px";
-            marker.style.top = pos[1] + "px";
-            marker.style.zIndex = "10000";
+            marker.style.cssText = `position:absolute; left:${pos[0]}px; top:${pos[1]}px; z-index:49; background:#ef4444; color:#fff; font-weight:600; padding: 0.5rem 2.2rem 0.5rem 1rem; border-radius: 4px 0 0 4px; box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06); letter-spacing:.025em; user-select:none; font-family:sans-serif; clip-path: polygon(0% 0%, 100% 0%, 92% 50%, 100% 100%, 0% 100%);`;
             marker.style.visibility = anchorsVisible ? 'visible' : 'hidden';
             container.appendChild(marker);
         });
     });
 }
 
-chrome.storage.onChanged.addListener(renderBookmarkMarkers);
+chrome.storage.onChanged.addListener((changes) => {
+    if (changes.saves)
+        renderBookmarkMarkers()
+});
 
 async function loadPdf() {
     try {
@@ -66,8 +65,16 @@ async function loadPdf() {
         const pdf = await loadingTask.promise;
         const container = document.getElementById('pdf-container');
         const scale = 1.5;
+
+        const pagePromises = [];
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            const page = await pdf.getPage(pageNum);
+            pagePromises.push(pdf.getPage(pageNum));
+        }
+
+        const pages = await Promise.all(pagePromises);
+        
+        pages.forEach((page, index) => {
+            const pageNum = index + 1;
             const viewport = page.getViewport({ scale });
 
             const pageWrapper = document.createElement('div');
@@ -83,6 +90,8 @@ async function loadPdf() {
             canvas.height = viewport.height;
             canvas.classList.add('pdf-page');
             pageWrapper.appendChild(canvas);
+            container.appendChild(canvas);
+        });
 
             await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
 
@@ -101,9 +110,18 @@ async function loadPdf() {
         renderBookmarkMarkers();
         if (scrollTarget) {
             window.scrollTo({ left: scrollTarget.x, top: scrollTarget.y, behavior: 'smooth' });
+            scrollTarget = null;
         }
+
+        pages.forEach((page, index) => {
+            const pageNum = index + 1;
+            const canvas = container.querySelector(`canvas[data-page-num="${pageNum}"]`);
+            const viewport = page.getViewport({ scale });
+            page.render({ canvasContext: canvas.getContext('2d'), viewport });
+        });
+
     } catch (err) {
-        console.error('ScrollSaver PDF load failed:', err);
+        console.error('ScrollWizard PDF load failed:', err);
         const container = document.getElementById('pdf-container');
         if (container) {
             const box = document.createElement('div');

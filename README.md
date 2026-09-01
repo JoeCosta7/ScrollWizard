@@ -1,3 +1,5 @@
+![Logo](/ScrollSaver/images/icon-128.png)
+
 # ScrollWizard
 
 ScrollWizard is a chrome extension that allows users to create bookmarks for scroll positions on a website

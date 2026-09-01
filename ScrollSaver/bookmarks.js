@@ -113,3 +113,20 @@ document.addEventListener("DOMContentLoaded", () => {
         render();
     });
 });
+
+document.addEventListener("visibilitychange", () => {
+    chrome.storage.local.get(['saves'], (result) => {
+        allEntries = result.saves || [];
+        render();
+    });
+});
+
+chrome.storage.onChanged.addListener((changes) => {
+    if (changes.settings) {
+        if (changes.settings.newValue.darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }
+});
