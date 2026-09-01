@@ -69,14 +69,33 @@ async function loadPdf() {
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
             const page = await pdf.getPage(pageNum);
             const viewport = page.getViewport({ scale });
+
+            const pageWrapper = document.createElement('div');
+            pageWrapper.classList.add('pdf-page-wrapper');
+            pageWrapper.dataset.pageNum = pageNum;
+            pageWrapper.style.position = 'relative';
+            pageWrapper.style.width = viewport.width + 'px';
+            pageWrapper.style.height = viewport.height + 'px';
+            pageWrapper.style.setProperty('--total-scale-factor', scale);
+
             const canvas = document.createElement('canvas');
             canvas.width = viewport.width;
             canvas.height = viewport.height;
-            canvas.dataset.pageNum = pageNum;
             canvas.classList.add('pdf-page');
-            container.appendChild(canvas);
+            pageWrapper.appendChild(canvas);
 
             await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+            const textLayerDiv = document.createElement('div');
+            textLayerDiv.classList.add('textLayer');
+            pageWrapper.appendChild(textLayerDiv);
+            await new pdfjsLib.TextLayer({
+                textContentSource: page.streamTextContent(),
+                container: textLayerDiv,
+                viewport
+            }).render();
+
+            container.appendChild(pageWrapper);
         }
         updatePage();
         renderBookmarkMarkers();
@@ -96,14 +115,14 @@ async function loadPdf() {
 }
 
 function updatePage() {
-    const canvases = document.querySelectorAll('.pdf-page');
+    const pages = document.querySelectorAll('.pdf-page-wrapper');
     const scrollMid = window.scrollY + window.innerHeight / 2;
-    for (const canvas of canvases) {
-    const top = canvas.offsetTop;
-    const bottom = top + canvas.height;
+    for (const page of pages) {
+    const top = page.offsetTop;
+    const bottom = top + page.offsetHeight;
     if (scrollMid >= top && scrollMid < bottom) {
         document.getElementById('page-indicator').textContent =
-            `Page ${canvas.dataset.pageNum}`;
+            `Page ${page.dataset.pageNum}`;
         break;
     }
   }

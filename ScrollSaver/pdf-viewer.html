@@ -4,6 +4,50 @@
     <meta charset="UTF-8">
     <title>PDF Viewer</title>
     <link rel="stylesheet" href="output.css">
+    <style>
+      :root {
+        --scale-round-x: 1px;
+        --scale-round-y: 1px;
+      }
+      .textLayer {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        line-height: 1;
+        text-align: initial;
+        transform-origin: 0 0;
+        caret-color: CanvasText;
+        z-index: 2;
+      }
+      .textLayer span,
+      .textLayer br {
+        color: transparent;
+        position: absolute;
+        white-space: pre;
+        cursor: text;
+        transform-origin: 0% 0%;
+        font-size: calc(var(--font-height) * var(--total-scale-factor));
+        transform: scaleX(var(--scale-x, 1)) rotate(var(--rotate, 0deg));
+      }
+      .textLayer span.markedContent {
+        top: 0;
+        height: 0;
+      }
+      .textLayer ::selection {
+        background: rgba(0, 100, 255, 0.35);
+      }
+      .textLayer .endOfContent {
+        display: block;
+        position: absolute;
+        inset: 100% 0 0;
+        z-index: -1;
+        cursor: default;
+        user-select: none;
+      }
+      .textLayer .endOfContent.active {
+        top: 0;
+      }
+    </style>
   </head>
   <body class="bg-gray-700 min-h-screen">
 
