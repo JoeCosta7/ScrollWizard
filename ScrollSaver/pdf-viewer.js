@@ -139,7 +139,7 @@ async function loadPdf() {
         if (container) {
             const box = document.createElement('div');
             box.style.cssText = 'color:#fecaca; background:rgba(127,29,29,.4); border:1px solid #ef4444; border-radius:.5rem; padding:1rem; margin:1rem; max-width:42rem; font-size:.875rem; white-space:pre-wrap; overflow-wrap:break-word; font-family:sans-serif;';
-            box.textContent = `Failed to load PDF:\n${err && err.message ? err.message : err}`;
+            box.innerHTML = `Failed to load PDF:\n${err && err.message ? err.message : err}\n\nYou may need to enable "Allow access to file URLs" within the extension's details page which is accessed through the Chrome extensions page (chrome://extensions).`;
             container.appendChild(box);
         }
     }
