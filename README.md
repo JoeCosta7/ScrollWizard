@@ -10,7 +10,7 @@ After clicking on Scroll Wizard in the extensions tab on Chrome, you can click "
 
 ## All Bookmarks
 
-The ScrollWizard popup only contains the saved scroll positions for the current page. If you want to see all your bookmarks, click "View All Bookmarks".
+The Scroll Wizard popup only contains the saved scroll positions for the current page. If you want to see all your bookmarks, click "View All Bookmarks".
 
 That button will take you to a page to see all your bookmarks. You can search by keyword for a your bookmarks if you have many. 
 
@@ -18,7 +18,7 @@ That button will take you to a page to see all your bookmarks. You can search by
 
 ## PDF Functionality
 
-ScrollWizard also works for locally stored PDFs opened in Chrome. If you have a PDF open in Chrome, a new green button titled "Open in Scroll Wizard" will appear in the Scroll Wizard extension popup. Once you click that, you will be able to place bookmarks on your pdf and jump to them as you please.
+Scroll Wizard also works for locally stored PDFs opened in Chrome. If you have a PDF open in Chrome, a new green button titled "Open in Scroll Wizard" will appear in the Scroll Wizard extension popup. Once you click that, you will be able to place bookmarks on your pdf and jump to them as you please.
 
 ![PdfViewer](/ScrollSaver/images/pdfviewer.png)
 
