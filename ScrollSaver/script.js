@@ -46,10 +46,12 @@ async function handleButtonClick(savedUrl, savedPosition) {
     }
     chrome.tabs.create({ url: targetUrl }, newTab => {
       if (!isPdf) {
-        chrome.scripting.executeScript({
-          target: { tabId: newTab.id },
-          func: loadScrollPos,
-          args: [savedPosition[0],savedPosition[1]]
+        getSettings((settings) => {
+          chrome.scripting.executeScript({
+            target: { tabId: newTab.id },
+            func: loadScrollPos,
+            args: [savedPosition[0],savedPosition[1], settings.jumpBehavior ? 'smooth' : 'instant']
+          });
         });
       }
     });
@@ -137,23 +139,24 @@ function handleRenameDoubleClick(posText, savedUrl, savedPosition, index, onComm
 
     
 
-function loadScrollPos(x, y) {
-  getSettings((settings) => {
-    window.scrollTo({ left: x, top: y, behavior: settings.jumpBehavior ? 'smooth' : 'instant' });
-  });
+function loadScrollPos(x, y, behavior) {
+  window.scrollTo({ left: x, top: y, behavior: behavior});
 }
 
 function executeScroll(x, y){
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  getSettings((settings) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (!tabs[0]) return;
-    if (tabs[0].url.includes('pdf-viewer.html')) {
-      chrome.tabs.sendMessage(tabs[0].id, { message: 'scrollTo', x, y });
-    } else {
-      chrome.scripting.executeScript({
-        target: { tabId: tabs[0].id },
-        func: loadScrollPos,
-        args: [x, y]
-      });
-    }
+      if (tabs[0].url.includes('pdf-viewer.html')) {
+        chrome.tabs.sendMessage(tabs[0].id, { message: 'scrollTo', x, y });
+      } else {
+        chrome.scripting.executeScript({
+          target: { tabId: tabs[0].id },
+          func: loadScrollPos,
+          args: [x, y, settings.jumpBehavior ? 'smooth' : 'instant']
+        });
+      }
+    });
   });
+  
 }

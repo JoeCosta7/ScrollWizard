@@ -24,11 +24,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (request.message === 'scrollTo') {
         chrome.storage.local.get(['settings'], (result) => {
-            const settings = { anchorsVisible: true, darkMode: false, jumpBehavior: true, ...(result.settings || {}) };
             window.scrollTo({
                 left: request.x,
                 top: request.y,
-                behavior: settings.jumpBehavior ? 'smooth' : 'instant'
+                behavior: result.settings.jumpBehavior ? 'smooth' : 'instant'
             });
         });
         return;
@@ -134,11 +133,10 @@ async function loadPdf() {
         renderBookmarkMarkers();
         if (scrollTarget) {
             chrome.storage.local.get(['settings'], (result) => {
-            const settings = { anchorsVisible: true, darkMode: false, jumpBehavior: true, ...(result.settings || {}) };
             window.scrollTo({
                 left: scrollTarget.x,
                 top: scrollTarget.y,
-                behavior: settings.jumpBehavior ? 'smooth' : 'instant'
+                behavior: result.settings.jumpBehavior ? 'smooth' : 'instant'
             });
         });
         }
