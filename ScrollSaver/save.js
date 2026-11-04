@@ -201,10 +201,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             document.getElementById('main-view').style.display = 'block';
         });
     }
-    chrome.storage.local.get(['settings'], (result) => {
+    getSettings((settings) => {
         const anchorToggle = document.getElementById('anchorToggle');
         if (anchorToggle) {
-            anchorToggle.checked = result.settings?.anchorsVisible !== false;
+            anchorToggle.checked = settings.anchorsVisible !== false;
             anchorToggle.addEventListener('change', (e) => {
                 updateSetting('anchorsVisible', e.target.checked);
             });
@@ -212,10 +212,18 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         const darkToggle = document.getElementById('darkToggle');
         if (darkToggle) {
-            darkToggle.checked = result.settings?.darkMode === true;
+            darkToggle.checked = settings.darkMode === true;
             darkToggle.addEventListener('change', (e) => {
                 applyTheme(e.target.checked);
                 updateSetting('darkMode', e.target.checked);
+            });
+        }
+
+        const smoothToggle = document.getElementById('smoothToggle');
+        if (smoothToggle) {
+            smoothToggle.checked = settings.jumpBehavior !== false;
+            smoothToggle.addEventListener('change', (e) => {
+                updateSetting('jumpBehavior', e.target.checked);
             });
         }
     });

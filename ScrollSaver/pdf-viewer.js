@@ -17,12 +17,25 @@ document.title = decodeURIComponent(pdfUrl.split('/').pop() || 'PDF Document');
 document.getElementById('pdf-title').textContent = document.title;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.message === "scrollXY") {
+    if (request.message === 'scrollXY') {
         sendResponse({ scrollPos: [window.scrollX, window.scrollY] });
-    } else if (request.message === "scrollTo") {
-        window.scrollTo({ left: request.x, top: request.y, behavior: 'smooth' });
-    } else if (request.message === "setAnchorsVisible") {
-        document.querySelectorAll('.saved-anchor-marker').forEach(el => {
+        return;
+    }
+
+    if (request.message === 'scrollTo') {
+        chrome.storage.local.get(['settings'], (result) => {
+            const settings = { anchorsVisible: true, darkMode: false, jumpBehavior: true, ...(result.settings || {}) };
+            window.scrollTo({
+                left: request.x,
+                top: request.y,
+                behavior: settings.jumpBehavior ? 'smooth' : 'instant'
+            });
+        });
+        return;
+    }
+
+    if (request.message === 'setAnchorsVisible') {
+        document.querySelectorAll('.saved-anchor-marker').forEach((el) => {
             el.style.visibility = request.visible ? 'visible' : 'hidden';
         });
     }
@@ -120,7 +133,14 @@ async function loadPdf() {
         updatePage();
         renderBookmarkMarkers();
         if (scrollTarget) {
-            window.scrollTo({ left: scrollTarget.x, top: scrollTarget.y, behavior: 'smooth' });
+            chrome.storage.local.get(['settings'], (result) => {
+            const settings = { anchorsVisible: true, darkMode: false, jumpBehavior: true, ...(result.settings || {}) };
+            window.scrollTo({
+                left: scrollTarget.x,
+                top: scrollTarget.y,
+                behavior: settings.jumpBehavior ? 'smooth' : 'instant'
+            });
+        });
         }
 
         const observer = new IntersectionObserver((entries) => {

@@ -1,15 +1,37 @@
+function getDefaultSettings() {
+  return {
+    anchorsVisible: true,
+    darkMode: false,
+    jumpBehavior: true
+  };
+}
+
+function getSettings(callback) {
+  chrome.storage.local.get(['settings'], (result) => {
+    const settings = { ...getDefaultSettings(), ...(result.settings || {}) };
+    if (JSON.stringify(settings) !== JSON.stringify(result.settings || {})) {
+      chrome.storage.local.set({ settings });
+    }
+    callback(settings);
+  });
+}
+
 function applyTheme(isDark) {
   document.documentElement.classList.toggle('dark', isDark);
 }
 
 function updateSetting(key, value) {
-  chrome.storage.local.get(['settings'], (result) => {
-    const settings = { ...(result.settings || {}), [key]: value };
-    chrome.storage.local.set({ settings });
+  getSettings((settings) => {
+    const updated = { ...settings, [key]: value };
+    chrome.storage.local.set({ settings: updated });
   });
 }
 chrome.storage.local.get(['settings'], (result) => {
-  applyTheme(result.settings?.darkMode === true);
+  const settings = { ...getDefaultSettings(), ...(result.settings || {}) };
+  if (JSON.stringify(settings) !== JSON.stringify(result.settings || {})) {
+    chrome.storage.local.set({ settings });
+  }
+  applyTheme(settings.darkMode === true);
 });
 
 async function handleButtonClick(savedUrl, savedPosition) {
@@ -116,10 +138,8 @@ function handleRenameDoubleClick(posText, savedUrl, savedPosition, index, onComm
     
 
 function loadScrollPos(x, y) {
-  window.scrollTo({
-    left: x,
-    top: y,
-    behavior: 'smooth'
+  getSettings((settings) => {
+    window.scrollTo({ left: x, top: y, behavior: settings.jumpBehavior ? 'smooth' : 'instant' });
   });
 }
 
