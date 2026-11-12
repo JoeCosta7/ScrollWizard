@@ -31,7 +31,6 @@ chrome.storage.local.get(['saves', 'settings'], async function(result) {
         });
     }
     window.navigation.addEventListener("navigate", () =>{
-        console.log('location changed!');
         const anchors = document.querySelectorAll(".saved-anchor-marker");
         const urlMatchExists = existingUrls.some(ent => ent.url === location.href);
 
